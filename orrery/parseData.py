@@ -1,6 +1,6 @@
 from datetime import datetime
 import sys
-def parseData(filename):
+def parse_data(filename):
     with open(filename, 'r') as f:
         data = f.read()
         sections = data.split("\n\n")
@@ -33,6 +33,6 @@ def parseData(filename):
     return date_time, bodies
 
 if __name__ == "__main__":
-    res = parseData(sys.argv[1])
+    res = parse_data(sys.argv[1])
     print(res)
     

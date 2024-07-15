@@ -4,6 +4,7 @@ import numpy as np
 from orrery.classes import CelestialBody
 from orrery.lib_calculation import *
 from orrery.lib_plotting import *
+from orrery import parse_data
 
 # Constants in SI
 AU_SI = 1.496e11 # Astronomical unit [m]; set to one for computational purposes
@@ -18,6 +19,7 @@ day_SI = 3600 * 24
 G = 2.95912208286e-4 # Gravitational constant [AU^3 sunmass^-1 day^-2]
 
 # Planetary data (mass in sun masses, initial position in AU, initial velocity in AU/day)
+date, bodies = parse_data
 sun = CelestialBody(1, np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]), radius_px=10, name="Sun")
 earth = CelestialBody(3.0025e-06, np.array([1.0, 0.0, 0.0]), np.array([0.0, 29780/AU_SI*day_SI, 0.0]), radius_px=3, name="Earth")
 mars = CelestialBody(3.2127e-07, np.array([1.524, 0.0, 0.0]), np.array([0.0, 24077/AU_SI*day_SI, 0.0]), radius_px=2, name="Mars")

@@ -7,15 +7,15 @@ from orrery.lib_plotting import *
 
 # Constants in SI
 AU_SI = 1.496e11 # Astronomical unit [m]; set to one for computational purposes
-m0_SI = 1.989e30 # Mass of the sun in [kg]; set to one for computational purposes
-G_SI = 6.67430e-11
+m0_SI = 1.989e30 # Mass of the sun [kg]; set to one for computational purposes
+G_SI = 6.67430e-11 # Gravitational constant [m^3 kg^-1 s^-2]
 day_SI = 3600 * 24
 
 # Chosen units for computation
-# sun mass = 1
+# 1 m0 = 1 sun mass = 1
 # 1 A.U. (astronomical unit = 1
 # 1 day = 1
-G = 2.95912208286e-4 # Gravitational constant in these units
+G = 2.95912208286e-4 # Gravitational constant [AU^3 sunmass^-1 day^-2]
 
 # Planetary data (mass in sun masses, initial position in AU, initial velocity in AU/day)
 sun = CelestialBody(1, np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]), radius_px=10, name="Sun")

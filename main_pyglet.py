@@ -19,7 +19,7 @@ day_SI = 3600 * 24
 G = 2.95912208286e-4 # Gravitational constant [AU^3 sunmass^-1 day^-2]
 
 # Planetary data (mass in sun masses, initial position in AU, initial velocity in AU/day)
-date, bodies = parse_data
+date, bodies = parse_data("./orrery/data/2024-Jan-01.txt")
 sun = CelestialBody(1, np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]), radius_px=10, name="Sun")
 earth = CelestialBody(3.0025e-06, np.array([1.0, 0.0, 0.0]), np.array([0.0, 29780/AU_SI*day_SI, 0.0]), radius_px=3, name="Earth")
 mars = CelestialBody(3.2127e-07, np.array([1.524, 0.0, 0.0]), np.array([0.0, 24077/AU_SI*day_SI, 0.0]), radius_px=2, name="Mars")

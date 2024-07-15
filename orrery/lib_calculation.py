@@ -29,9 +29,8 @@ def compute_timestep(bodies, delta_t, G):
     """Update positions and velocities of planets. Computation of a timestep"""
     forces = compute_force_matrix(bodies, G)
     for i, body in enumerate(bodies):
-        total_force = total_force(forces, i)
         # Acceleration
-        a = total_force / body.mass
+        a = total_force(forces, i) / body.mass
         ## Simple method for time integration
         # Save velocity before acceleration
         v_before = body.velocity

@@ -11,15 +11,18 @@ def resource_path(relative_path):
     Returns:
     str: The absolute path to the resource file.
     """
+    relative_path_parts = os.path.split(relative_path)
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
+        if ".." == relative_path_parts[0]:
+            relative_path_parts.pop(0)
     except Exception:
         # In development, use the absolute path of the current file's directory
         base_path = os.path.abspath(".")
     
     # Join the base path with the relative path to get the absolute path to the resource
-    return os.path.join(base_path, relative_path)
+    return os.path.join(base_path, *relative_path_parts)
     
 
 

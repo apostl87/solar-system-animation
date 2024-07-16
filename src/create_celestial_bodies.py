@@ -1,6 +1,7 @@
 import numpy as np
-from .parse_data import *
-from .classes import CelestialBody
+from parse_data import *
+from classes import CelestialBody
+from utils.resource_path import *
 
 
 def create_celestial_bodies(which='inner'):
@@ -11,7 +12,7 @@ def create_celestial_bodies(which='inner'):
     G_SI = 6.67430e-11  # Gravitational constant [m^3 kg^-1 s^-2]
     day_SI = 3600 * 24  # One day [s]
     
-    current_datetime, input_bodies = parse_data("./orrery/data/2024-Jan-01.txt")
+    current_datetime, input_bodies = parse_data(resource_path("../resources/2024-Jan-01.txt"))
     current_date = current_datetime.date()
     radii_px = [15, 3, 3, 5, 4, 12, 10, 9, 7, 2]  # radii in pixels
     colors = (

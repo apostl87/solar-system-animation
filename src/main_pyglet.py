@@ -6,10 +6,10 @@ import sys
 import threading
 import time
 from utils.resource_path import *
-from orrery.classes import CelestialBody
-from orrery.lib_calculation import *
-from orrery.lib_plotting import *
-from orrery.create_celestial_bodies import *
+from classes import CelestialBody
+from lib_calculation import *
+from lib_plotting import *
+from create_celestial_bodies import *
 
 ##################### Units and Constants ########################
 
@@ -217,7 +217,7 @@ def set_steps_per_frame_handler(text):
 
 
 # Play/Pause button
-img_set_date = pyglet.image.load(resource_path('resources/button-play-pause-white.png'))
+img_set_date = pyglet.image.load(resource_path('../resources/button-play-pause-white.png'))
 y_play_pause = window.height - 50
 play_pause_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_play_pause,
                                           pressed=img_set_date, depressed=img_set_date, hover=img_set_date,
@@ -267,7 +267,7 @@ frame.add_widget(day_entry)
 
 # Set Date button
 y_set_date_button = y_day - 50
-img_play_pause = pyglet.image.load(resource_path('resources/button-set-date-white.png'))    
+img_play_pause = pyglet.image.load(resource_path('../resources/button-set-date-white.png'))    
 set_date_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_set_date_button,
                                           pressed=img_play_pause, depressed=img_play_pause, hover=img_play_pause,
                                           batch=main_batch)
@@ -287,7 +287,7 @@ info_label2 = pyglet.text.Label("",
 # Speed
 y_speed = y_info_label2 - 60
 width_of_entry = 40
-img_set = pyglet.image.load(resource_path('resources/button-set-white.png'))
+img_set = pyglet.image.load(resource_path('../resources/button-set-white.png'))
 
 speed_entry_label = pyglet.text.Label("Speed (1-60)",
                                      x=x_margin, y=y_speed, font_size=11,
@@ -307,7 +307,7 @@ frame.add_widget(set_speed_button)
 # Number of steps/days per frame
 y_steps_per_frame = y_speed - 70
 width_of_entry = 40
-img_set = pyglet.image.load(resource_path('resources/button-set-white.png'))
+img_set = pyglet.image.load(resource_path('../resources/button-set-white.png'))
 
 steps_per_frame_entry_label = pyglet.text.Label("Days per frame (1-50)",
                                      x=x_margin, y=y_steps_per_frame, font_size=11,

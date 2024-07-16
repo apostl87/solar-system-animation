@@ -1,4 +1,5 @@
 import numpy as np
+import datetime
 
 def compute_force(body1, body2, G):
     """Compute gravitational force exerted on body1 by body2. (vectorial) """
@@ -25,8 +26,9 @@ def total_force(forces, row):
     force = [sum(forces[coordinate, row, :]) for coordinate in [0, 1, 2]]
     return np.array(force)
 
-def compute_timestep(bodies, delta_t, G):
+def compute_timestep(bodies, G, current_datetime, t_step = 1):
     """Update positions and velocities of planets. Computation of a timestep"""
+    """t_step is the time of a simulation step in (!) days. It should be lower than or equal to 1"""
     forces = compute_force_matrix(bodies, G)
     for i, body in enumerate(bodies):
         # Acceleration
@@ -34,8 +36,10 @@ def compute_timestep(bodies, delta_t, G):
         ## Simple method for time integration
         # Save velocity before acceleration
         v_before = body.velocity
-        body.accelerate(a, delta_t)
+        body.accelerate(a, t_step)
         # Position after the timestep
-        x_afterwards = body.position + (body.velocity + v_before)/2 * delta_t
+        x_afterwards = body.position + (body.velocity + v_before)/2 * t_step
         body.reposition(x_afterwards)
+        
+    return current_datetime + datetime.timedelta(days=t_step)
 

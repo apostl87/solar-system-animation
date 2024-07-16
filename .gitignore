@@ -1,6 +1,9 @@
 matplotlib/
 allmatlab/
+*.spec
 *.ipynb*
 *testpyglet.py
 __pycache__/
 .DS_Store
+build/
+dist/

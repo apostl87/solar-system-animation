@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 import sys
 def parse_data(filename):
     with open(filename, 'r') as f:
@@ -8,7 +8,7 @@ def parse_data(filename):
     datesection = sections[1].splitlines()
     datestr = datesection[1]
     formatstr = datesection[3]
-    date_time = datetime.strptime(datestr, formatstr)
+    date_time = datetime.datetime.strptime(datestr, formatstr)
 
     bodies = []
     for section in sections[2:]:

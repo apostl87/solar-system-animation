@@ -14,12 +14,13 @@ def apply_scaling(x, y, window, navigation_width, field_of_view_AU):
     Returns:
     tuple: A tuple containing the scaled and translated x-coordinate and y-coordinate.
     """
-    scale = min(window.width - navigation_width, window.height)/field_of_view_AU # pixels per A.U.
+    # scale = min(window.width - navigation_width, window.height)/field_of_view_AU # pixels per A.U.
+    scale = (window.width - navigation_width)/field_of_view_AU # pixels per A.U.
     offset_x = (window.width - navigation_width)//2 + navigation_width
     offset_y = window.height//2
     return x*scale + offset_x, y*scale + offset_y
 
-def orthonogonal_projection(pos_3d, v1, v2):
+def orthogonal_projection(pos_3d, v1, v2):
     """
     Compute the orthogonal projection of a 3D point onto the plane defined by two vectors.
     IMPORTANT: v1 and v2 must have a norm of 1. (This reduces computational effort.)

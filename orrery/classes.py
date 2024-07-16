@@ -1,12 +1,13 @@
 import numpy as np
 
 class CelestialBody:
-    def __init__(self, mass, position, velocity, radius_px=None, name='body'):
+    def __init__(self, mass, position, velocity, radius_px=None, name='body', color=(150, 150, 150)):
         self.mass = mass
         self.position = np.array(position)
         self.velocity = np.array(velocity)
         self.radius_px = radius_px # for plotting purposes
         self.name = name # for plotting purposes
+        self.color = color # for plotting purposes
         
     def reposition(self, position):
         self.position = np.array(position)

@@ -33,11 +33,11 @@ t_step = 1  # Time step of simulation in days
 
 # # View parameters
 global current_date
-window_width = 800
+window_width = 1200
 window_height = 600
 navigation_width = 100  # Width of the navigation area in pixels
 field_of_view_AU = 10  # Size of the field of view in A.U.
-view_normal_vector = np.array((0, 1 / 2, 1 / 2))  # Normal vector of the projection plane
+view_normal_vector = np.array((0, 1 / 2, 1 / 4))  # Normal vector of the projection plane
 v1, v2 = generate_perpendicular_vectors(view_normal_vector)
 
 # # Animation parameters
@@ -45,6 +45,7 @@ global is_animating, speed, steps_per_frame
 is_animating = True
 speed = 60
 steps_per_frame = 1  # Number of steps taken per frame
+history_length = 200 # Length of tail in earth days
 
 # # Variables for setting an arbitrary date
 global computation_progress  # When calculating to a target date
@@ -60,18 +61,31 @@ target_date_error = None
 
 current_datetime, input_bodies = parse_data("./orrery/data/2024-Jan-01.txt")
 current_date = current_datetime.date()
-radii_px = [20, 2, 2, 4, 3, 12, 10, 8, 5, 1]  # radii in pixels
-# colors = ... # TODO
+radii_px = [15, 2, 2, 4, 3, 12, 10, 8, 5, 1]  # radii in pixels
+colors = (
+        (255, 223, 0),  # Sun: Bright yellow
+        (169, 169, 169),  # Mercury: Dark gray
+        (255, 204, 153),  # Venus: Pale yellowish-brown
+        (0, 102, 204),  # Earth: Blue (ocean) with hints of green (land)
+        (210, 105, 30),  # Mars: Reddish-brown
+        (255, 165, 0),  # Jupiter: Orange with bands
+        (194, 178, 128),  # Saturn: Pale gold with bands
+        (173, 216, 230),  # Uranus: Light blue
+        (0, 0, 139),  # Neptune: Deep blue
+        (169, 169, 169)  # Pluto: Light brown or gray
+)
 celestial_bodies = []
 for i, input_body in enumerate(input_bodies):
     celestial_bodies.append(CelestialBody(input_body['mass'] / m0_SI,
                                 np.array(input_body['position']) * 1e3 / AU_SI,
                                 np.array(input_body['velocity']) * 1e3 / AU_SI * day_SI,
                                 radius_px=radii_px[i],
-                                name=input_body['name']))
-celestial_bodies = [*celestial_bodies[1:6], celestial_bodies[0]]  # Take Sun as the last celestial_bodies to draw him last
+                                name=input_body['name'],
+                                color=colors[i]))
+celestial_bodies = [*celestial_bodies[:6]]  # Take the inner solar system for now
 
 #################### Helper Functions ########################
+
 
 # Perform simulation to target date without animation
 def do_computation(target_date):
@@ -95,6 +109,7 @@ def do_computation(target_date):
     time.sleep(0.2)
     # pyglet.clock.unschedule(refresh_info_labels)
     pyglet.clock.schedule_once(refresh_plot, 0.1) 
+
     
 def analyze_invalid_target_date_input():
     if not year_entry.value.isnumeric():
@@ -117,8 +132,9 @@ def analyze_invalid_target_date_input():
 
 ############## Basic structure of the View ###################
 
+
 # Window
-window = pyglet.window.Window(window_width, window_height)
+window = pyglet.window.Window(window_width, window_height, caption='Solar System Animation')
 
 # Main batch component
 main_batch = pyglet.graphics.Batch()
@@ -132,11 +148,11 @@ circles = []
 labels = []
 histories = []
 tails = []
-for body in celestial_bodies:
-    color = tuple(np.random.randint(0, 255, (3)))
+for i, body in enumerate(celestial_bodies):
+    # color = tuple(np.random.randint(0, 255, (3)))
 
     # Circles
-    circle = pyglet.shapes.Circle(x=0, y=0, radius=body.radius_px, color=color, batch=main_batch)
+    circle = pyglet.shapes.Circle(x=0, y=0, radius=body.radius_px, color=body.color, batch=main_batch)
     circles.append(circle)
 
     # Labels
@@ -148,12 +164,9 @@ for body in celestial_bodies:
                           batch=main_batch)
     labels.append(label)
     
-    # Multilines
-    tail = pyglet.shapes.MultiLine(*([-10,-10], [-5, -5]), thickness = 2, color=(255, 0, 0), batch=main_batch)
-    tails.append(tail)
-    
-    # Histories
+    # Histories and tails
     histories.append([])
+    tails.append(None)
 
 # Current date label
 date_label = pyglet.text.Label("Date: " + current_date.strftime("%d %B, %Y"),
@@ -164,6 +177,7 @@ date_label = pyglet.text.Label("Date: " + current_date.strftime("%d %B, %Y"),
 
 ##################### Navigation UI #####################
 x_margin = 10  # Margin to the left of the screen
+
 
 # # Callback functions
 def press_play_pause_button_handler():
@@ -181,12 +195,15 @@ def press_set_date_button_handler():
     try:
         target_date = datetime.date(int(year_entry.value), int(month_entry.value), int(day_entry.value))
     except Exception as e:
-        #print(e)
+        # print(e)
         target_date_error = analyze_invalid_target_date_input()
         return
         
     if target_date_error is None:
         threading.Thread(target=do_computation, args=([target_date])).start()
+        for history in histories:
+            history.clear()
+
         
 def set_speed_handler(text):
     global speed
@@ -194,6 +211,7 @@ def set_speed_handler(text):
         speed = float(text)
         pyglet.clock.unschedule(animate)
         pyglet.clock.schedule_interval(animate, 1 / speed)
+
         
 def set_steps_per_frame_handler(text):
     global steps_per_frame
@@ -205,6 +223,7 @@ def set_steps_per_frame_handler(text):
         # pyglet.clock.schedule_interval(animate, 1 / speed)
 
 # # Widgets and labels
+
 
 # Play/Pause button
 img_set_date = pyglet.image.load(resource_path('resources/button-play-pause-white.png'))
@@ -275,7 +294,7 @@ info_label2 = pyglet.text.Label("",
 
 # # Text entries for speed, number of steps/days per frame
 # Speed
-y_speed = y_info_label2 - 30
+y_speed = y_info_label2 - 60
 width_of_entry = 40
 img_set = pyglet.image.load(resource_path('resources/button-set-white.png'))
 
@@ -284,11 +303,11 @@ speed_entry_label = pyglet.text.Label("Speed (1-60)",
                                      batch=main_batch, anchor_x='left', anchor_y='bottom',
                                      color=(255, 255, 255, 255))
 speed_entry = pyglet.gui.TextEntry(str(speed),
-                                  x=x_margin, y=y_speed-25,
+                                  x=x_margin, y=y_speed - 25,
                                   width=width_of_entry, batch=main_batch)
 speed_entry.set_handler('on_commit', set_speed_handler)
 frame.add_widget(speed_entry)
-set_speed_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_speed-30,
+set_speed_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_speed - 30,
                                           pressed=img_set, depressed=img_set, hover=img_set,
                                           batch=main_batch)
 set_speed_button.set_handler('on_press', lambda: set_speed_handler(speed_entry.value))
@@ -300,21 +319,20 @@ width_of_entry = 40
 img_set = pyglet.image.load(resource_path('resources/button-set-white.png'))
 
 steps_per_frame_entry_label = pyglet.text.Label("Days per frame (1-50)",
-                                     x=x_margin, y=y_steps_per_frame, font_size=11, 
+                                     x=x_margin, y=y_steps_per_frame, font_size=11,
                                      batch=main_batch, anchor_x='left', anchor_y='bottom',
-                                     multiline=True, width=navigation_width-x_margin,
+                                     multiline=True, width=navigation_width - x_margin,
                                      color=(255, 255, 255, 255))
 steps_per_frame_entry = pyglet.gui.TextEntry(str(steps_per_frame),
-                                  x=x_margin, y=y_steps_per_frame-25,
+                                  x=x_margin, y=y_steps_per_frame - 25,
                                   width=width_of_entry, batch=main_batch)
 steps_per_frame_entry.set_handler('on_commit', set_steps_per_frame_handler)
 frame.add_widget(steps_per_frame_entry)
-set_steps_per_frame_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_steps_per_frame-30,
+set_steps_per_frame_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_steps_per_frame - 30,
                                           pressed=img_set, depressed=img_set, hover=img_set,
                                           batch=main_batch)
 set_steps_per_frame_button.set_handler('on_press', lambda: set_steps_per_frame_handler(steps_per_frame_entry.value))
 frame.add_widget(set_steps_per_frame_button)
-
 
 ##################### Animation ########################
 
@@ -325,14 +343,12 @@ def animate(dt):
     for i in range(steps_per_frame):
         current_date = compute_timestep(celestial_bodies, G, current_date, t_step=t_step)
         for (body, history) in zip(celestial_bodies, histories):
-            if body.name == 'Eassdssrth':
-                continue
             # Projection
-            xproj, yproj = orthonogonal_projection(body.position, v1, v2)
+            xproj, yproj = orthogonal_projection(body.position, v1, v2)
             # Scaling
             x, y = apply_scaling(xproj, yproj, window, navigation_width, field_of_view_AU)
             history.append([x, y])
-            if len(history) > 50:
+            if len(history) > history_length:
                 del history[0]
     
     refresh_plot(dt)
@@ -356,6 +372,8 @@ def refresh_plot(dt):
     date_label.text = "Date: " + current_date.strftime("%d %B, %Y")
     
     for i, (body, circle, label, history) in enumerate(zip(celestial_bodies, circles, labels, histories)):
+        if len(history) == 0:
+            continue
         x, y = history[-1]
         # Label position
         label_x = x
@@ -364,8 +382,7 @@ def refresh_plot(dt):
         circle.x, circle.y = x, y
         label.x, label.y = label_x, label_y
         # Tails
-        tails[i] = pyglet.shapes.MultiLine(*history, thickness = 2, color=(255, 255, 255), batch=main_batch)
-            
+        tails[i] = pyglet.shapes.MultiLine(*history, thickness=2, color=body.color, batch=main_batch)
 
 ##################### Listeners ########################
 

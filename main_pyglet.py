@@ -10,6 +10,7 @@ from orrery.classes import CelestialBody
 from orrery.lib_calculation import *
 from orrery.lib_plotting import *
 from orrery.parse_data import *
+from anyio.streams import text
 
 ##################### Constants ########################
 
@@ -40,10 +41,10 @@ view_normal_vector = np.array((0, 1 / 2, 1 / 2))  # Normal vector of the project
 v1, v2 = generate_perpendicular_vectors(view_normal_vector)
 
 # # Animation parameters
-global is_animating, frequency, N_steps_per_frame
+global is_animating, speed, steps_per_frame
 is_animating = True
-frequency = 60
-N_steps_per_frame = 1  # Number of steps taken per frame
+speed = 60
+steps_per_frame = 1  # Number of steps taken per frame
 
 # # Variables for setting an arbitrary date
 global computation_progress  # When calculating to a target date
@@ -148,7 +149,7 @@ for body in celestial_bodies:
 # Current date label
 date_label = pyglet.text.Label("Date: " + current_date.strftime("%d %B, %Y"),
                           font_name='Roboto', font_size=12,
-                          x=navigation_width, y=window.height - 10,
+                          x=navigation_width + 10, y=window.height - 20,
                           anchor_x='left', anchor_y='top',
                           batch=main_batch)
 
@@ -161,7 +162,7 @@ def press_play_pause_button_handler():
     if is_animating:
         pyglet.clock.unschedule(animate)
     else:
-        pyglet.clock.schedule_interval(animate, 1 / frequency)
+        pyglet.clock.schedule_interval(animate, 1 / speed)
     is_animating = not is_animating
 
 
@@ -177,12 +178,27 @@ def press_set_date_button_handler():
         
     if target_date_error is None:
         threading.Thread(target=do_computation, args=([target_date])).start()
+        
+def set_speed_handler(text):
+    global speed
+    if text.isnumeric() and 1 <= float(text) <= 60:
+        speed = float(text)
+        pyglet.clock.unschedule(animate)
+        pyglet.clock.schedule_interval(animate, 1 / speed)
+        
+def set_steps_per_frame_handler(text):
+    global steps_per_frame
+    if text.isnumeric() and 1 <= float(text) <= 50:
+        val = int(round(float(text)))
+        steps_per_frame = val
+        steps_per_frame_entry.text = str(val)
+        # pyglet.clock.unschedule(animate)
+        # pyglet.clock.schedule_interval(animate, 1 / speed)
 
 # # Widgets and labels
 
 # Play/Pause button
-img_path = resource_path('resources/button-play-pause-white.png')
-img_set_date = pyglet.image.load(img_path)
+img_set_date = pyglet.image.load(resource_path('resources/button-play-pause-white.png'))
 y_play_pause = window.height - 50
 play_pause_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_play_pause,
                                           pressed=img_set_date, depressed=img_set_date, hover=img_set_date,
@@ -200,7 +216,7 @@ info_label1 = pyglet.text.Label("",
                           batch=main_batch)
 
 # Text entries for year, month, day
-y_year = window.height - 150
+y_year = y_info_label1 - 50
 year_entry_label = pyglet.text.Label("Year",
                                      x=x_margin, y=y_year, font_size=11,
                                      batch=main_batch, anchor_x='left', anchor_y='bottom',
@@ -232,8 +248,7 @@ frame.add_widget(day_entry)
 
 # Set Date button
 y_set_date_button = y_day - 50
-img_path = resource_path('resources/button-set-date-white.png')
-img_play_pause = pyglet.image.load(img_path)    
+img_play_pause = pyglet.image.load(resource_path('resources/button-set-date-white.png'))    
 set_date_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_set_date_button,
                                           pressed=img_play_pause, depressed=img_play_pause, hover=img_play_pause,
                                           batch=main_batch)
@@ -249,13 +264,56 @@ info_label2 = pyglet.text.Label("",
                           multiline=True, width=navigation_width - x_margin,
                           batch=main_batch)
 
+# # Text entries for speed, number of steps/days per frame
+# Speed
+y_speed = y_info_label2 - 30
+width_of_entry = 40
+img_set = pyglet.image.load(resource_path('resources/button-set-white.png'))
+
+speed_entry_label = pyglet.text.Label("Speed (1-60)",
+                                     x=x_margin, y=y_speed, font_size=11,
+                                     batch=main_batch, anchor_x='left', anchor_y='bottom',
+                                     color=(255, 255, 255, 255))
+speed_entry = pyglet.gui.TextEntry(str(speed),
+                                  x=x_margin, y=y_speed-25,
+                                  width=width_of_entry, batch=main_batch)
+speed_entry.set_handler('on_commit', set_speed_handler)
+frame.add_widget(speed_entry)
+set_speed_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_speed-30,
+                                          pressed=img_set, depressed=img_set, hover=img_set,
+                                          batch=main_batch)
+set_speed_button.set_handler('on_press', lambda: set_speed_handler(speed_entry.value))
+frame.add_widget(set_speed_button)
+
+# Number of steps/days per frame
+y_steps_per_frame = y_speed - 70
+width_of_entry = 40
+img_set = pyglet.image.load(resource_path('resources/button-set-white.png'))
+
+steps_per_frame_entry_label = pyglet.text.Label("Days per frame (1-50)",
+                                     x=x_margin, y=y_steps_per_frame, font_size=11, 
+                                     batch=main_batch, anchor_x='left', anchor_y='bottom',
+                                     multiline=True, width=navigation_width-x_margin,
+                                     color=(255, 255, 255, 255))
+steps_per_frame_entry = pyglet.gui.TextEntry(str(steps_per_frame),
+                                  x=x_margin, y=y_steps_per_frame-25,
+                                  width=width_of_entry, batch=main_batch)
+steps_per_frame_entry.set_handler('on_commit', set_steps_per_frame_handler)
+frame.add_widget(steps_per_frame_entry)
+set_steps_per_frame_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_steps_per_frame-30,
+                                          pressed=img_set, depressed=img_set, hover=img_set,
+                                          batch=main_batch)
+set_steps_per_frame_button.set_handler('on_press', lambda: set_steps_per_frame_handler(steps_per_frame_entry.value))
+frame.add_widget(set_steps_per_frame_button)
+
+
 ##################### Animation ########################
 
 
 def animate(dt):
-    global current_date
+    global current_date, steps_per_frame
     
-    for i in range(N_steps_per_frame):
+    for i in range(steps_per_frame):
         current_date = compute_timestep(celestial_bodies, G, current_date, t_step=t_step)
     
     refresh_plot(dt)
@@ -264,6 +322,8 @@ def animate(dt):
 
 
 def refresh_info_labels(dt):
+    info_label1.text = "Running" if is_animating else "Paused"
+    
     if computation_progress > 0:
     # if computation_progress > 0:
         info_label2.text = "Calculating: " + str(round(computation_progress * 100)) + "%"
@@ -301,6 +361,6 @@ def on_draw():
 
 
 if __name__ == '__main__':
-    pyglet.clock.schedule_interval(animate, 1 / frequency)
-    pyglet.clock.schedule_interval(refresh_info_labels, 1 / frequency * 2)
+    pyglet.clock.schedule_interval(animate, 1 / speed)
+    pyglet.clock.schedule_interval(refresh_info_labels, 1 / speed * 2)
     pyglet.app.run()

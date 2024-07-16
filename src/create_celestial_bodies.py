@@ -5,7 +5,18 @@ from utils.resource_path import *
 
 
 def create_celestial_bodies(which='inner'):
-    
+    """
+    This function creates a list of celestial bodies based on the provided data.
+    The celestial bodies are represented by the CelestialBody class.
+
+    Parameters:
+    which (str): A string indicating whether to create celestial bodies for the 'inner' or 'outer' solar system.
+                 Default is 'inner'.
+                 
+    Returns:
+    list: A list of CelestialBody objects representing the celestial bodies.
+    date: The date of the input data.
+    """
     # Constants in SI
     AU_SI = 1.496e11  # Astronomical unit [m]; set to one for computational purposes
     m0_SI = 1.989e30  # Mass of the sun [kg]; set to one for computational purposes

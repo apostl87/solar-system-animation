@@ -9,16 +9,11 @@ from utils.resource_path import *
 from orrery.classes import CelestialBody
 from orrery.lib_calculation import *
 from orrery.lib_plotting import *
-from orrery.parse_data import *
-from anyio.streams import text
+from orrery.create_celestial_bodies import *
 
-##################### Constants ########################
+##################### Units and Constants ########################
 
-# Constants in SI
-AU_SI = 1.496e11  # Astronomical unit [m]; set to one for computational purposes
-m0_SI = 1.989e30  # Mass of the sun [kg]; set to one for computational purposes
-G_SI = 6.67430e-11  # Gravitational constant [m^3 kg^-1 s^-2]
-day_SI = 3600 * 24  # One day [s]
+# For constants, please refer to create_celestial_bodies.py
 
 # Chosen units for computation
 # 1 m0 = 1 sun mass = 1
@@ -33,11 +28,11 @@ t_step = 1  # Time step of simulation in days
 
 # # View parameters
 global current_date
-window_width = 1200
+window_width = 1000
 window_height = 600
 navigation_width = 100  # Width of the navigation area in pixels
-field_of_view_AU = 10  # Size of the field of view in A.U.
-view_normal_vector = np.array((0, 1 / 2, 1 / 4))  # Normal vector of the projection plane
+field_of_view_AU = 12  # Size of the field of view in A.U.
+view_normal_vector = np.array((0, 1, 2 / 3))  # Normal vector of the projection plane
 v1, v2 = generate_perpendicular_vectors(view_normal_vector)
 
 # # Animation parameters
@@ -45,7 +40,7 @@ global is_animating, speed, steps_per_frame
 is_animating = True
 speed = 60
 steps_per_frame = 1  # Number of steps taken per frame
-history_length = 200 # Length of tail in earth days
+history_length = 200  # Length of tail in earth days
 
 # # Variables for setting an arbitrary date
 global computation_progress  # When calculating to a target date
@@ -59,36 +54,30 @@ target_date_error = None
 # velocities in A.U./day
 #############################################################
 
-current_datetime, input_bodies = parse_data("./orrery/data/2024-Jan-01.txt")
-current_date = current_datetime.date()
-radii_px = [15, 2, 2, 4, 3, 12, 10, 8, 5, 1]  # radii in pixels
-colors = (
-        (255, 223, 0),  # Sun: Bright yellow
-        (169, 169, 169),  # Mercury: Dark gray
-        (255, 204, 153),  # Venus: Pale yellowish-brown
-        (0, 102, 204),  # Earth: Blue (ocean) with hints of green (land)
-        (210, 105, 30),  # Mars: Reddish-brown
-        (255, 165, 0),  # Jupiter: Orange with bands
-        (194, 178, 128),  # Saturn: Pale gold with bands
-        (173, 216, 230),  # Uranus: Light blue
-        (0, 0, 139),  # Neptune: Deep blue
-        (169, 169, 169)  # Pluto: Light brown or gray
-)
-celestial_bodies = []
-for i, input_body in enumerate(input_bodies):
-    celestial_bodies.append(CelestialBody(input_body['mass'] / m0_SI,
-                                np.array(input_body['position']) * 1e3 / AU_SI,
-                                np.array(input_body['velocity']) * 1e3 / AU_SI * day_SI,
-                                radius_px=radii_px[i],
-                                name=input_body['name'],
-                                color=colors[i]))
-celestial_bodies = [*celestial_bodies[:6]]  # Take the inner solar system for now
+celestial_bodies, current_date = create_celestial_bodies('inner')  # Take the inner solar system (plus Jupiter) for now
 
 #################### Helper Functions ########################
 
 
+def position_in_view(position):
+    relative_position = position - celestial_bodies[0].position  # center the view w.r.t. the Sun
+    # Projection
+    xproj, yproj = orthogonal_projection(relative_position, v1, v2)
+    # Scaling
+    x, y = apply_scaling(xproj, yproj, window, navigation_width, field_of_view_AU)
+    return (x, y)
+
 # Perform simulation to target date without animation
 def do_computation(target_date):
+    """
+    Performs the computation to reach the target date.
+
+    Parameters:
+    target_date (datetime.date): The date to which the computation is performed.
+
+    Returns:
+    None.
+    """
     global current_date, computation_progress, is_animating
     is_animating = False
     pyglet.clock.unschedule(animate)
@@ -181,10 +170,12 @@ x_margin = 10  # Margin to the left of the screen
 
 # # Callback functions
 def press_play_pause_button_handler():
-    global is_animating
+    global is_animating, computation_progress
     if is_animating:
         pyglet.clock.unschedule(animate)
     else:
+        if computation_progress > 0:
+            return
         pyglet.clock.schedule_interval(animate, 1 / speed)
     is_animating = not is_animating
 
@@ -244,7 +235,7 @@ info_label1 = pyglet.text.Label("",
                           batch=main_batch)
 
 # Text entries for year, month, day
-y_year = y_info_label1 - 50
+y_year = y_info_label1 - 70
 year_entry_label = pyglet.text.Label("Year",
                                      x=x_margin, y=y_year, font_size=11,
                                      batch=main_batch, anchor_x='left', anchor_y='bottom',
@@ -343,10 +334,7 @@ def animate(dt):
     for i in range(steps_per_frame):
         current_date = compute_timestep(celestial_bodies, G, current_date, t_step=t_step)
         for (body, history) in zip(celestial_bodies, histories):
-            # Projection
-            xproj, yproj = orthogonal_projection(body.position, v1, v2)
-            # Scaling
-            x, y = apply_scaling(xproj, yproj, window, navigation_width, field_of_view_AU)
+            x, y = position_in_view(body.position)
             history.append([x, y])
             if len(history) > history_length:
                 del history[0]
@@ -357,7 +345,7 @@ def animate(dt):
 
 
 def refresh_info_labels(dt):
-    info_label1.text = "Running" if is_animating else "Paused"
+    info_label1.text = "Running" if is_animating else ("Paused" if computation_progress == 0 else "Calculation in progress")
     
     if computation_progress > 0:
     # if computation_progress > 0:
@@ -373,8 +361,9 @@ def refresh_plot(dt):
     
     for i, (body, circle, label, history) in enumerate(zip(celestial_bodies, circles, labels, histories)):
         if len(history) == 0:
-            continue
-        x, y = history[-1]
+            x, y = position_in_view(body.position)
+        else:
+            x, y = history[-1]
         # Label position
         label_x = x
         label_y = y + body.radius_px + 2
@@ -382,7 +371,10 @@ def refresh_plot(dt):
         circle.x, circle.y = x, y
         label.x, label.y = label_x, label_y
         # Tails
-        tails[i] = pyglet.shapes.MultiLine(*history, thickness=2, color=body.color, batch=main_batch)
+        if len(history) >= 2:
+            tails[i] = pyglet.shapes.MultiLine(*history, thickness=2, color=body.color, batch=main_batch)
+        else:
+            tails[i] = None
 
 ##################### Listeners ########################
 

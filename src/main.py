@@ -5,11 +5,11 @@ import datetime
 import sys
 import threading
 import time
-from utils.resource_path import *
-from classes import CelestialBody
-from lib_calculation import *
-from lib_plotting import *
-from create_celestial_bodies import *
+from .utils.resource_path import *
+from .classes import CelestialBody
+from .lib_calculation import *
+from .lib_plotting import *
+from .create_celestial_bodies import *
 
 ##################### Units and Constants ########################
 
@@ -58,7 +58,6 @@ celestial_bodies, current_date = create_celestial_bodies('inner')  # Take the in
 
 #################### Helper Functions ########################
 
-
 def position_in_view(position):
     """
     Calculates the position of a celestial body in the view.
@@ -69,6 +68,7 @@ def position_in_view(position):
     Returns:
     tuple: A tuple (x, y) representing the 2D position of the celestial body in the view.
     """
+    print(window_width)
     relative_position = position - celestial_bodies[0].position  # center the view w.r.t. the Sun
     # Projection
     xproj, yproj = orthogonal_projection(relative_position, viewplane_vector1, viewplane_vector2)
@@ -107,7 +107,7 @@ def do_computation(target_date):
     pyglet.clock.schedule_once(refresh_plot, 0.1) 
 
     
-def analyze_invalid_target_date_input():
+def analyze_invalid_target_date_input(year, month, day):
     """
     This function analyzes the input values for the target date and returns an error message if necessary.
     It assumes that the input data failed when passed to datetime.datetime(*args) 
@@ -118,17 +118,17 @@ def analyze_invalid_target_date_input():
     Returns:
     str: An error message of the first detected error.
     """
-    if not year_entry.value.isnumeric():
+    if not year.isnumeric():
         return "Year must be a number"
-    if not (1 <= int(year_entry.value) <= 9999):
+    if not (1 <= int(year) <= 9999):
         return "Year must be a value from 1 to 9999"
-    if not month_entry.value.isnumeric():
+    if not month.isnumeric():
         return "Month must be a number"
-    if not (1 <= int(year_entry.value) <= 9999):
+    if not (1 <= int(month) <= 9999):
         return "Month must be a value from 1 to 12"
-    if not day_entry.value.isnumeric():
+    if not day.isnumeric():
         return "Day must be a number"
-    return f"Day ({day_entry.value}) does not exist in month {month_entry.value}/{year_entry.value}"
+    return f"Day ({int(day)}) does not exist in month {int(month)}/{int(year)}"
 
 ######################### VIEW ###############################
 # Unfortunately, pyglet architecture does not
@@ -204,7 +204,7 @@ def press_set_date_button_handler():
         target_date = datetime.date(int(year_entry.value), int(month_entry.value), int(day_entry.value))
     except Exception as e:
         # print(e)
-        target_date_error = analyze_invalid_target_date_input()
+        target_date_error = analyze_invalid_target_date_input(year_entry.value, month_entry.value, day_entry.value)
         return
         
     if target_date_error is None:
@@ -219,7 +219,7 @@ def set_speed_handler(text):
         speed = float(text)
         pyglet.clock.unschedule(animate)
         pyglet.clock.schedule_interval(animate, 1 / speed)
-
+    return speed
         
 def set_steps_per_frame_handler(text):
     global steps_per_frame
@@ -227,8 +227,7 @@ def set_steps_per_frame_handler(text):
         val = int(round(float(text)))
         steps_per_frame = val
         steps_per_frame_entry.text = str(val)
-        # pyglet.clock.unschedule(animate)
-        # pyglet.clock.schedule_interval(animate, 1 / speed)
+    return steps_per_frame
 
 # # Widgets and labels
 
@@ -418,8 +417,10 @@ def on_draw():
     window.clear()
     main_batch.draw()
 
-
-if __name__ == '__main__':
+def run():
     pyglet.clock.schedule_interval(animate, 1 / speed)
     pyglet.clock.schedule_interval(refresh_info_labels, 1 / speed * 2)
     pyglet.app.run()
+
+if __name__ == '__main__':
+    run()

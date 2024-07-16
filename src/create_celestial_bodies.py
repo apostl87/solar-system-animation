@@ -1,7 +1,7 @@
 import numpy as np
-from parse_data import *
-from classes import CelestialBody
-from utils.resource_path import *
+from .parse_data import *
+from .classes import CelestialBody
+from .utils.resource_path import *
 
 
 def create_celestial_bodies(which='inner'):

@@ -60,6 +60,15 @@ celestial_bodies, current_date = create_celestial_bodies('inner')  # Take the in
 
 
 def position_in_view(position):
+    """
+    Calculates the position of a celestial body in the view.
+
+    Parameters:
+    position (numpy.ndarray): The 3D position of the celestial body.
+
+    Returns:
+    tuple: A tuple (x, y) representing the 2D position of the celestial body in the view.
+    """
     relative_position = position - celestial_bodies[0].position  # center the view w.r.t. the Sun
     # Projection
     xproj, yproj = orthogonal_projection(relative_position, v1, v2)
@@ -70,7 +79,7 @@ def position_in_view(position):
 # Perform simulation to target date without animation
 def do_computation(target_date):
     """
-    Performs the computation to reach the target date.
+    Performs the computation to reach the target date. Aimed to run asynchronously.
 
     Parameters:
     target_date (datetime.date): The date to which the computation is performed.
@@ -101,6 +110,16 @@ def do_computation(target_date):
 
     
 def analyze_invalid_target_date_input():
+    """
+    This function analyzes the input values for the target date and returns an error message if necessary.
+    It assumes that the input data failed when passed to datetime.datetime(*args) 
+
+    Parameters:
+    None
+
+    Returns:
+    str: An error message of the first detected error.
+    """
     if not year_entry.value.isnumeric():
         return "Year must be a number"
     if not (1 <= int(year_entry.value) <= 9999):
@@ -325,10 +344,19 @@ set_steps_per_frame_button = pyglet.gui.PushButton(x=x_margin + width_of_entry +
 set_steps_per_frame_button.set_handler('on_press', lambda: set_steps_per_frame_handler(steps_per_frame_entry.value))
 frame.add_widget(set_steps_per_frame_button)
 
+# Info label 3 (bottom of the view)
+info_label3 = pyglet.text.Label("",
+                                     x=window.width//2, y=5, font_size=11,
+                                     batch=main_batch, anchor_x='center', anchor_y='bottom',
+                                     color=(255, 255, 255, 255))
+
 ##################### Animation ########################
 
 
 def animate(dt):
+    """
+    Animation function to animate a number of steps_per_frame steps
+    """
     global current_date, steps_per_frame
     
     for i in range(steps_per_frame):
@@ -345,6 +373,9 @@ def animate(dt):
 
 
 def refresh_info_labels(dt):
+    """
+    Refresh all purely informational labels
+    """
     info_label1.text = "Running" if is_animating else ("Paused" if computation_progress == 0 else "Calculation in progress")
     
     if computation_progress > 0:
@@ -355,8 +386,13 @@ def refresh_info_labels(dt):
     else:
         info_label2.text = ""
         
+    info_label3.text = f"Target animation speed: {speed} frames/s   Elapsed days per frame: {steps_per_frame}"
+        
     
 def refresh_plot(dt):
+    """
+    Refresh the plot with new positions of celestial bodies and their tails.
+    """
     date_label.text = "Date: " + current_date.strftime("%d %B, %Y")
     
     for i, (body, circle, label, history) in enumerate(zip(celestial_bodies, circles, labels, histories)):
@@ -383,9 +419,6 @@ def refresh_plot(dt):
 def on_draw():
     window.clear()
     main_batch.draw()
-
-# event_logger = pyglet.window.event.WindowEventLogger()
-# window.push_handlers(event_logger)
 
 
 if __name__ == '__main__':

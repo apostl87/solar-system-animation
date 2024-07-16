@@ -1,4 +1,6 @@
 matplotlib/
+.coverage
+*egg-info/
 allmatlab/
 *.spec
 *.ipynb*

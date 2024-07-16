@@ -130,6 +130,8 @@ frame = pyglet.gui.Frame(window, order=4)
 
 circles = []
 labels = []
+histories = []
+tails = []
 for body in celestial_bodies:
     color = tuple(np.random.randint(0, 255, (3)))
 
@@ -145,6 +147,13 @@ for body in celestial_bodies:
                           anchor_x='center', anchor_y='bottom',
                           batch=main_batch)
     labels.append(label)
+    
+    # Multilines
+    tail = pyglet.shapes.MultiLine(*([-10,-10], [-5, -5]), thickness = 2, color=(255, 0, 0), batch=main_batch)
+    tails.append(tail)
+    
+    # Histories
+    histories.append([])
 
 # Current date label
 date_label = pyglet.text.Label("Date: " + current_date.strftime("%d %B, %Y"),
@@ -315,6 +324,16 @@ def animate(dt):
     
     for i in range(steps_per_frame):
         current_date = compute_timestep(celestial_bodies, G, current_date, t_step=t_step)
+        for (body, history) in zip(celestial_bodies, histories):
+            if body.name == 'Eassdssrth':
+                continue
+            # Projection
+            xproj, yproj = orthonogonal_projection(body.position, v1, v2)
+            # Scaling
+            x, y = apply_scaling(xproj, yproj, window, navigation_width, field_of_view_AU)
+            history.append([x, y])
+            if len(history) > 50:
+                del history[0]
     
     refresh_plot(dt)
 
@@ -336,17 +355,17 @@ def refresh_info_labels(dt):
 def refresh_plot(dt):
     date_label.text = "Date: " + current_date.strftime("%d %B, %Y")
     
-    for (body, circle, label) in zip(celestial_bodies, circles, labels):
-        # Projection
-        xproj, yproj = orthonogonal_projection(body.position, v1, v2)
-        # Scaling
-        x, y = apply_scaling(xproj, yproj, window, navigation_width, field_of_view_AU)
+    for i, (body, circle, label, history) in enumerate(zip(celestial_bodies, circles, labels, histories)):
+        x, y = history[-1]
         # Label position
         label_x = x
         label_y = y + body.radius_px + 2
         # Update of circles and labels
         circle.x, circle.y = x, y
         label.x, label.y = label_x, label_y
+        # Tails
+        tails[i] = pyglet.shapes.MultiLine(*history, thickness = 2, color=(255, 255, 255), batch=main_batch)
+            
 
 ##################### Listeners ########################
 

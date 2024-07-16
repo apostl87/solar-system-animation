@@ -32,15 +32,15 @@ window_width = 1000
 window_height = 600
 navigation_width = 100  # Width of the navigation area in pixels
 field_of_view_AU = 12  # Size of the field of view in A.U.
-view_normal_vector = np.array((0, 1, 2 / 3))  # Normal vector of the projection plane
-v1, v2 = generate_perpendicular_vectors(view_normal_vector)
+viewplane_normal_vector = np.array((0, 1, 2 / 3))  # Normal vector of the projection plane
+viewplane_vector1, viewplane_vector2 = generate_perpendicular_vectors(viewplane_normal_vector)
 
 # # Animation parameters
 global is_animating, speed, steps_per_frame
 is_animating = True
 speed = 60
 steps_per_frame = 1  # Number of steps taken per frame
-history_length = 200  # Length of tail in earth days
+rel_history_length = 2/3  # Length of tail in orbital periods
 
 # # Variables for setting an arbitrary date
 global computation_progress  # When calculating to a target date
@@ -71,7 +71,7 @@ def position_in_view(position):
     """
     relative_position = position - celestial_bodies[0].position  # center the view w.r.t. the Sun
     # Projection
-    xproj, yproj = orthogonal_projection(relative_position, v1, v2)
+    xproj, yproj = orthogonal_projection(relative_position, viewplane_vector1, viewplane_vector2)
     # Scaling
     x, y = apply_scaling(xproj, yproj, window, navigation_width, field_of_view_AU)
     return (x, y)
@@ -104,8 +104,6 @@ def do_computation(target_date):
             computation_progress = next_progress_to_report
             next_progress_to_report += progress_step
     computation_progress = 0
-    time.sleep(0.2)
-    # pyglet.clock.unschedule(refresh_info_labels)
     pyglet.clock.schedule_once(refresh_plot, 0.1) 
 
     
@@ -364,7 +362,7 @@ def animate(dt):
         for (body, history) in zip(celestial_bodies, histories):
             x, y = position_in_view(body.position)
             history.append([x, y])
-            if len(history) > history_length:
+            if len(history) > np.ceil(rel_history_length * body.period):
                 del history[0]
     
     refresh_plot(dt)

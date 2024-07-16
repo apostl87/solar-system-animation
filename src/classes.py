@@ -1,15 +1,16 @@
 import numpy as np
 
 class CelestialBody:
-    def __init__(self, mass, position, velocity, radius_px=None, name='body', color=(150, 150, 150)):
+    def __init__(self, mass, position, velocity, radius_px=None, name='body', color=(150, 150, 150), period=-1):
         """
         Parameters:
         mass (float): The mass of the celestial body in kilograms.
         position (list or numpy.ndarray): The initial position of the celestial body in 3D space.
         velocity (list or numpy.ndarray): The initial velocity of the celestial body in 3D space.
-        radius_px (float, optional): The radius of the celestial body for plotting purposes. Default is None.
-        name (str, optional): The name of the celestial body. Default is 'body'.
-        color (tuple, optional): The color of the celestial body for plotting purposes. Default is (150, 150, 150).
+        radius_px (float, optional): The radius of the celestial body. Default: None.
+        name (str, optional): The name of the celestial body. Default: 'body'.
+        color (tuple, optional): The color of the celestial body. Default: (150, 150, 150).
+        period (float, optional): The orbital period of the celestial body. Default: -1.
         """
         self.mass = mass
         self.position = np.array(position)
@@ -17,6 +18,7 @@ class CelestialBody:
         self.radius_px = radius_px # for plotting purposes
         self.name = name # for plotting purposes
         self.color = color # for plotting purposes
+        self.period = period # orbital period (also needed for plotting)
         
     def reposition(self, position):
         """

@@ -38,13 +38,26 @@ def create_celestial_bodies(which='inner'):
             (0, 0, 139),  # Neptune: Deep blue
             (169, 169, 169)  # Pluto: Light brown or gray
     )
+    periods = ( 1,
+                87.97,
+                224.70,
+                365.25,
+                686.98,
+                4332.82,
+                10755.70,
+                30687.15,
+                60190.03,
+                90560
+                )
+    
     celestial_bodies = []
     for i, input_body in enumerate(input_bodies):
         m = input_body['mass'] / m0_SI
         position = np.array(input_body['position']) * 1e3 / AU_SI
         velocity = np.array(input_body['velocity']) * 1e3 / AU_SI * day_SI
         name = input_body['name']
-        celestial_bodies.append(CelestialBody(m, position, velocity, name=name, radius_px=radii_px[i], color=colors[i]))
+        celestial_bodies.append(CelestialBody(m, position, velocity,
+                                              name=name, radius_px=radii_px[i], color=colors[i], period=periods[i]))
     
     if which == 'inner':
         celestial_bodies = [*celestial_bodies[:6]]  # until Jupiter, even though Jupiter is no inner planet

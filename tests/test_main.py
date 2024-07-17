@@ -1,6 +1,9 @@
 import numpy as np
 from ..src.main import *
 from ..src.classes import CelestialBody
+import datetime
+import pytest
+import mock
 
 
 def test_position_in_view_edge_cases():
@@ -32,7 +35,7 @@ def test_compute_timestep_new_date():
 def test_analyze_invalid_target_date_input():
 
     # Set the input values for the year, month, and day entries
-    year =  "2022"
+    year = "2022"
     month = "2"
     day = "30"
     
@@ -40,12 +43,14 @@ def test_analyze_invalid_target_date_input():
     
     assert error_message == "Day (30) does not exist in month 2/2022", "Error message is not as expected"
 
+
 def test_set_speed_handler():
     value = "30"
     
     speed = set_speed_handler(value)
     
     assert speed == 30, "Speed is not as expected"
+
     
 def test_set_steps_per_frame_handler():
     value = "20"
@@ -53,3 +58,4 @@ def test_set_steps_per_frame_handler():
     steps_per_frame = set_steps_per_frame_handler(value)
     
     assert steps_per_frame == 20, "Steps per frame is not as expected"
+

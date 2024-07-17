@@ -1,0 +1,11 @@
+---
+images:
+    set-parameter:
+        path: resources/button-set-white.png
+    set-date:
+        path: resources/button-set-date-white.png
+    play-pause:
+        path: resources/button-play-pause-white.png
+        
+input-data: resources/planet-data.txt
+...

@@ -5,11 +5,12 @@ import datetime
 import sys
 import threading
 import time
-from .utils.resource_path import *
+from .utils.absolute_path import absolute_path
 from .classes import CelestialBody
 from .lib_calculation import *
 from .lib_plotting import *
 from .create_celestial_bodies import *
+from .utils.read_config import read_config
 
 ##################### Units and Constants ########################
 
@@ -233,10 +234,11 @@ def set_steps_per_frame_handler(text):
 
 
 # Play/Pause button
-img_set_date = pyglet.image.load(resource_path('../resources/button-play-pause-white.png'))
+path = absolute_path(config['images']['play-pause']['path'])
+img_play_pause = pyglet.image.load(path)
 y_play_pause = window.height - 50
 play_pause_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_play_pause,
-                                          pressed=img_set_date, depressed=img_set_date, hover=img_set_date,
+                                          pressed=img_play_pause, depressed=img_play_pause, hover=img_play_pause,
                                           batch=main_batch)
 play_pause_button.set_handler('on_press', press_play_pause_button_handler)
 frame.add_widget(play_pause_button)
@@ -283,9 +285,10 @@ frame.add_widget(day_entry)
 
 # Set Date button
 y_set_date_button = y_day - 50
-img_play_pause = pyglet.image.load(resource_path('../resources/button-set-date-white.png'))    
+path = absolute_path(config['images']['set-date']['path'])
+img_set_date = pyglet.image.load(path)
 set_date_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_set_date_button,
-                                          pressed=img_play_pause, depressed=img_play_pause, hover=img_play_pause,
+                                          pressed=img_set_date, depressed=img_set_date, hover=img_set_date,
                                           batch=main_batch)
 set_date_button.set_handler('on_press', press_set_date_button_handler)
 frame.add_widget(set_date_button)
@@ -303,7 +306,8 @@ info_label2 = pyglet.text.Label("",
 # Speed
 y_speed = y_info_label2 - 60
 width_of_entry = 40
-img_set = pyglet.image.load(resource_path('../resources/button-set-white.png'))
+path = absolute_path(config['images']['set-parameter']['path'])
+img_set_parameter = pyglet.image.load(path)
 
 speed_entry_label = pyglet.text.Label("Speed (1-60)",
                                      x=x_margin, y=y_speed, font_size=11,
@@ -315,7 +319,7 @@ speed_entry = pyglet.gui.TextEntry(str(speed),
 speed_entry.set_handler('on_commit', set_speed_handler)
 frame.add_widget(speed_entry)
 set_speed_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_speed - 30,
-                                          pressed=img_set, depressed=img_set, hover=img_set,
+                                          pressed=img_set_parameter, depressed=img_set_parameter, hover=img_set_parameter,
                                           batch=main_batch)
 set_speed_button.set_handler('on_press', lambda: set_speed_handler(speed_entry.value))
 frame.add_widget(set_speed_button)
@@ -323,7 +327,6 @@ frame.add_widget(set_speed_button)
 # Number of steps/days per frame
 y_steps_per_frame = y_speed - 70
 width_of_entry = 40
-img_set = pyglet.image.load(resource_path('../resources/button-set-white.png'))
 
 steps_per_frame_entry_label = pyglet.text.Label("Days per frame (1-50)",
                                      x=x_margin, y=y_steps_per_frame, font_size=11,
@@ -336,7 +339,7 @@ steps_per_frame_entry = pyglet.gui.TextEntry(str(steps_per_frame),
 steps_per_frame_entry.set_handler('on_commit', set_steps_per_frame_handler)
 frame.add_widget(steps_per_frame_entry)
 set_steps_per_frame_button = pyglet.gui.PushButton(x=x_margin + width_of_entry + 10, y=y_steps_per_frame - 30,
-                                          pressed=img_set, depressed=img_set, hover=img_set,
+                                          pressed=img_set_parameter, depressed=img_set_parameter, hover=img_set_parameter,
                                           batch=main_batch)
 set_steps_per_frame_button.set_handler('on_press', lambda: set_steps_per_frame_handler(steps_per_frame_entry.value))
 frame.add_widget(set_steps_per_frame_button)

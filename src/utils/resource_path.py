@@ -1,5 +1,9 @@
 import os
 import sys
+from dotenv import load_dotenv
+
+
+print(BASE_PATH)
 
 def resource_path(relative_path):
     """
@@ -15,14 +19,12 @@ def resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
-        if ".." == relative_path_parts[0]:
-            relative_path_parts.pop(0)
+
     except Exception:
-        # In development, use the absolute path of the current file's directory
-        base_path = os.path.abspath(".")
-        if ".." == relative_path_parts[0]: # Workaround with the new structure
-            relative_path_parts.pop(0)
-    
+        # In development, use the .env file
+        load_dotenv()
+        base_path = os.getenv('BASE_PATH')
+        
     # Join the base path with the relative path to get the absolute path to the resource
     return os.path.join(base_path, *relative_path_parts)
     

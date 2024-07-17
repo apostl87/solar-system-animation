@@ -27,8 +27,8 @@ def orthogonal_projection(pos_3d, v1, v2):
 
     Parameters:
     pos_3d (numpy array): A 3D point represented as a numpy array.
-    v1 (numpy array): The first vector defining the plane.
-    v2 (numpy array): The second vector defining the plane.
+    v1 (numpy array): The first vector defining the plane. Must be normalized to reduce computational effort.
+    v2 (numpy array): The second vector defining the plane. Must be normalized to reduce computational effort.
 
     Returns:
     tuple: A tuple containing the x-coordinate and y-coordinate of the orthogonal projection.

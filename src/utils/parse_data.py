@@ -42,11 +42,5 @@ def parse_data(filename):
             "position": position,
             "velocity": velocity,
         })
-
-    return date_time, bodies
-
-
-if __name__ == "__main__":
-    res = parse_data(sys.argv[1])
-    print(res)
     
+    return date_time, bodies

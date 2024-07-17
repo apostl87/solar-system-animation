@@ -1,5 +1,5 @@
 import numpy as np
-from .parse_data import *
+from .utils.parse_data import parse_data
 from .classes import CelestialBody
 from .utils.read_config import read_config
 from .utils.absolute_path import absolute_path
@@ -12,13 +12,17 @@ def create_celestial_bodies(which='inner'):
     The celestial bodies are represented by the CelestialBody class.
 
     Parameters:
-    which (str): A string indicating whether to create celestial bodies for the 'inner' or 'outer' solar system.
-                 Default is 'inner'.
+    which (str): 'all', 'inner' or 'outer' (Default: 'inner').
+                 A string indicating whether to create celestial bodies
+                 for the 'inner' or 'outer' solar system.
                  
     Returns:
     list: A list of CelestialBody objects representing the celestial bodies.
     date: The date of the input data.
     """
+    if which not in ['all', 'inner', 'outer']:
+        raise ValueError("Invalid value for 'which' parameter. Expected 'inner' or 'outer'.")
+    
     # Constants in SI
     AU_SI = 1.496e11  # Astronomical unit [m]; set to one for computational purposes
     m0_SI = 1.989e30  # Mass of the sun [kg]; set to one for computational purposes
@@ -66,6 +70,6 @@ def create_celestial_bodies(which='inner'):
     if which == 'inner':
         celestial_bodies = [*celestial_bodies[:6]]  # until Jupiter, even though Jupiter is no inner planet
     elif which == 'outer':
-        celestial_bodies = [celestial_bodies[0], *celestial_bodies[6:]]  # from Jupiter outwards
+        celestial_bodies = [celestial_bodies[0], *celestial_bodies[5:]]  # from Jupiter outwards
     
     return celestial_bodies, current_date

@@ -5,7 +5,7 @@ import datetime
 import sys
 import threading
 import time
-from .utils.absolute_path import absolute_path
+from .utils.resource_path import resource_path
 from .classes import CelestialBody
 from .lib_calculation import *
 from .lib_plotting import *
@@ -233,7 +233,7 @@ def set_steps_per_frame_handler(text):
 
 
 # Play/Pause button
-path = absolute_path(config['images']['play-pause']['path'])
+path = resource_path(config['images']['play-pause']['path'])
 img_play_pause = pyglet.image.load(path)
 y_play_pause = window.height - 50
 play_pause_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_play_pause,
@@ -284,7 +284,7 @@ frame.add_widget(day_entry)
 
 # Set Date button
 y_set_date_button = y_day - 50
-path = absolute_path(config['images']['set-date']['path'])
+path = resource_path(config['images']['set-date']['path'])
 img_set_date = pyglet.image.load(path)
 set_date_button = pyglet.gui.PushButton(x=(navigation_width - 70) // 2, y=y_set_date_button,
                                           pressed=img_set_date, depressed=img_set_date, hover=img_set_date,
@@ -305,7 +305,7 @@ info_label2 = pyglet.text.Label("",
 # Speed
 y_speed = y_info_label2 - 60
 width_of_entry = 40
-path = absolute_path(config['images']['set-parameter']['path'])
+path = resource_path(config['images']['set-parameter']['path'])
 img_set_parameter = pyglet.image.load(path)
 
 speed_entry_label = pyglet.text.Label("Speed (1-60)",

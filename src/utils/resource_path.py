@@ -2,7 +2,7 @@ import os
 import sys
 from dotenv import load_dotenv
 
-def absolute_path(relative_path):
+def resource_path(relative_path):
     """
     Get absolute path to resource, works for both development and PyInstaller environments.
 
@@ -23,7 +23,7 @@ def absolute_path(relative_path):
         base_path = os.getenv('BASE_PATH')
         
     # Join the base path with the relative path to get the absolute path to the resource
-    return os.path.join(base_path, *relative_path_parts)
+    return os.path.join(base_path, 'resources', *relative_path_parts)
     
 
 

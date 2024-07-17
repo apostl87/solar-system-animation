@@ -2,7 +2,7 @@ import numpy as np
 from .utils.parse_data import parse_data
 from .classes import CelestialBody
 from .utils.read_config import read_config
-from .utils.absolute_path import absolute_path
+from .utils.resource_path import resource_path
 
 config = read_config()
 
@@ -30,7 +30,7 @@ def create_celestial_bodies(which='inner'):
     day_SI = 3600 * 24  # One day [s]
     
     # Load data
-    path = absolute_path(config['input-data'])
+    path = resource_path(config['input-data'])
     current_datetime, input_bodies = parse_data(path)
     current_date = current_datetime.date()
     radii_px = [15, 3, 3, 5, 4, 12, 10, 9, 7, 2]  # radii in pixels

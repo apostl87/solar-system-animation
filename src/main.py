@@ -69,7 +69,6 @@ def position_in_view(position):
     Returns:
     tuple: A tuple (x, y) representing the 2D position of the celestial body in the view.
     """
-    print(window_width)
     relative_position = position - celestial_bodies[0].position  # center the view w.r.t. the Sun
     # Projection
     xproj, yproj = orthogonal_projection(relative_position, viewplane_vector1, viewplane_vector2)
@@ -91,7 +90,7 @@ def do_computation(target_date):
     global current_date, computation_progress, is_animating
     is_animating = False
     pyglet.clock.unschedule(animate)
-    print("Calculating to target date")
+    print("Calculating to target date ...")
 
     delta_days = (target_date - current_date).days
     t_step = 1 if target_date > current_date else -1

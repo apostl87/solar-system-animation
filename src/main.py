@@ -163,7 +163,7 @@ for i, body in enumerate(celestial_bodies):
 
     # Labels
     label = pyglet.text.Label(body.name,
-                          font_name='Roboto',
+                          font_name='Arial',
                           font_size=12,
                           x=0, y=0,
                           anchor_x='center', anchor_y='bottom',
@@ -176,7 +176,7 @@ for i, body in enumerate(celestial_bodies):
 
 # Current date label
 date_label = pyglet.text.Label("Date: " + current_date.strftime("%d %B, %Y"),
-                          font_name='Roboto', font_size=12,
+                          font_name='Arial', font_size=12,
                           x=navigation_width + 10, y=window.height - 20,
                           anchor_x='left', anchor_y='top',
                           batch=main_batch)
@@ -245,7 +245,7 @@ frame.add_widget(play_pause_button)
 # Info label 1
 y_info_label1 = y_play_pause - 15
 info_label1 = pyglet.text.Label("",
-                          font_name='Roboto', font_size=11,
+                          font_name='Arial', font_size=11,
                           x=x_margin, y=y_info_label1,
                           anchor_x='left', anchor_y='top', align="center",
                           multiline=True, width=navigation_width - x_margin,
@@ -295,7 +295,7 @@ frame.add_widget(set_date_button)
 # Info label 2
 y_info_label2 = y_set_date_button - 15
 info_label2 = pyglet.text.Label("",
-                          font_name='Roboto', font_size=11,
+                          font_name='Arial', font_size=11,
                           x=x_margin, y=y_info_label2,
                           anchor_x='left', anchor_y='top', align="center",
                           multiline=True, width=navigation_width - x_margin,

@@ -21,17 +21,21 @@ it is not ideal for a lot of features I have in mind for the application. I migh
 
 # Building single-file Application
 1. Install [pyinstaller](https://github.com/pyinstaller/pyinstaller) to your local environment
+   <code>pip install pyinstaller</code>
    
 1. Navigate to the repository root folder
    
-1. 
+1. Depending on your OS
 - **Linux / MacOS**  
     - Either use the provided pyinstaller spec-file:  
       <code>pyinstaller build-macos.spec</code>
     - or build the pyinstaller spec-file on your own:  
       <code>pyinstaller -n="Solar System Animation" --onefile --windowed --icon=media/app.ico --paths="." --add-data="resources:resources" ./app.py</code>
-- **Windows**  
-  <code>pyinstaller.exe -n="Solar System Animation" --onefile --windowed --icon=media/app.ico --paths="." --add-data="resources;resources" ./app.py</code>
+- **Windows**
+    - Install Pillow  
+      <code>pip install pillow</code>
+    - Build app  
+      <code>pyinstaller.exe -n="Solar System Animation" --onefile --windowed --icon=media/app.ico --paths="." --add-data="resources;resources" ./app.py</code>
 
 <hr>
 

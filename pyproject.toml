@@ -1,0 +1,2 @@
+[project]
+requires-python = ">=3.12.10,<3.13"
